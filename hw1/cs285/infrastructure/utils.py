@@ -33,15 +33,19 @@ def sample_trajectory(env, policy, max_path_length, render=False):
             image_obs.append(cv2.resize(img, dsize=(250, 250), interpolation=cv2.INTER_CUBIC))
     
         # TODO use the most recent ob to decide what to do
-        ac = TODO # HINT: this is a numpy array
-        ac = ac[0]
+        # fin
+        ac =  policy.get_action(ob) # HINT: this is a numpy array # what is it's none -> Q. get_action으로 가져와야하나??
+        ac = ac[0] # why [0]? batch =1 ?
 
         # TODO: take that action and get reward and next ob
-        next_ob, rew, done, _ = TODO
+        # fin
+
+        next_ob, rew, done, _ = env.step(ac)
         
         # TODO rollout can end due to done, or due to max_path_length
+        # fin
         steps += 1
-        rollout_done = TODO # HINT: this is either 0 or 1
+        rollout_done = steps == max_path_length # HINT: this is either 0 or 1
         
         # record result of taking that action
         obs.append(ob)
@@ -63,7 +67,8 @@ def sample_trajectory(env, policy, max_path_length, render=False):
             "next_observation": np.array(next_obs, dtype=np.float32),
             "terminal": np.array(terminals, dtype=np.float32)}
 
-
+# Q. 여기서 timestep이 뭐지?? episode length도 아니고
+# 아래 sample_n_trajectories랑 뭐가다른건지몰겠음
 def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, render=False):
     """Collect rollouts until we have collected min_timesteps_per_batch steps."""
 
