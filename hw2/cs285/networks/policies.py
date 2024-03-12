@@ -59,8 +59,10 @@ class MLPPolicy(nn.Module):
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         """Takes a single observation (as a numpy array) and returns a single action (as a numpy array)."""
         # TODO: implement get_action
-        action = None
-
+        # fin
+        obs = ptu.from_numpy(obs)
+        action = self.forward(obs)
+        action = ptu.to_numpy(action)
         return action
 
     def forward(self, obs: torch.FloatTensor):
@@ -71,11 +73,15 @@ class MLPPolicy(nn.Module):
         """
         if self.discrete:
             # TODO: define the forward pass for a policy with a discrete action space.
-            pass
+            action = self.logits_net(obs)
+            action = torch.exp(action)
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
-            pass
-        return None
+            mu = self.mean_net(observation)
+            std = torch.exp(self.logstd)
+            normal = distributions.Normal(mu, std)
+            action = normal.rsample()
+        return action
 
     def update(self, obs: np.ndarray, actions: np.ndarray, *args, **kwargs) -> dict:
         """Performs one iteration of gradient descent on the provided batch of data."""
@@ -95,9 +101,16 @@ class MLPPolicyPG(MLPPolicy):
         obs = ptu.from_numpy(obs)
         actions = ptu.from_numpy(actions)
         advantages = ptu.from_numpy(advantages)
-
+        
         # TODO: implement the policy gradient actor update.
-        loss = None
+        # Q. 저렇게 loss에 곱해주기만 하면 되나?, GT actions는 어떤 형태인지 모르는 어캄(이게 logit인지 뭐시긴지어떻게알아)
+        self.optimizer.zero_grad()
+        actions_pred = self.forward(obs)
+        loss = torch.log(actions_pred) * advantages
+        loss.backward()
+
+        self.optimizer.step()
+        
 
         return {
             "Actor Loss": ptu.to_numpy(loss),

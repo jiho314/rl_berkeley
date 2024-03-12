@@ -17,7 +17,6 @@ from cs285.infrastructure.action_noise_wrapper import ActionNoiseWrapper
 
 MAX_NVIDEO = 2
 
-
 def run_training_loop(args):
     logger = Logger(args.logdir)
 
@@ -33,7 +32,7 @@ def run_training_loop(args):
     # add action noise, if needed
     if args.action_noise_std > 0:
         assert not discrete, f"Cannot use --action_noise_std for discrete environment {args.env_name}"
-        env = ActionNoiseWrapper(env, args.seed, args.action_noise_std)
+        env = ActionNoiseWrapper(env, args.seed, args.action_noise_std) # .action(act) -> act + noise
 
     max_ep_len = args.ep_len or env.spec.max_episode_steps
 
@@ -70,16 +69,22 @@ def run_training_loop(args):
         print(f"\n********** Iteration {itr} ************")
         # TODO: sample `args.batch_size` transitions using utils.sample_trajectories
         # make sure to use `max_ep_len`
-        trajs, envsteps_this_batch = None, None  # TODO
+        # fin
+        trajs, envsteps_this_batch = utils.sample_trajectories(env, agent.actor, args.batch_size, max_ep_len )
         total_envsteps += envsteps_this_batch
 
         # trajs should be a list of dictionaries of NumPy arrays, where each dictionary corresponds to a trajectory.
-        # this line converts this into a single dictionary of lists of NumPy arrays.
-        trajs_dict = {k: [traj[k] for traj in trajs] for k in trajs[0]}
+        # this line converts this into a single dictionary of lists of NumPy arrays. 
+        trajs_dict = {k: [traj[k] for traj in trajs] for k in trajs[0]} # Q. 왜 [0] ? => A. 걍 아무 dict의 key만 가져오기 위함
 
         # TODO: train the agent using the sampled trajectories and the agent's update function
-        train_info: dict = None
+        # Q. 뭘 넣어주라는거야 이거
+        train_info: dict = None 
 
+        # Q. Policy Gradient 학습 방식 뭘까 
+        # 1. Actor(mlp)
+        # 2. Critic(Advantage)
+        
         if itr % args.scalar_log_freq == 0:
             # save eval metrics
             print("\nCollecting data for eval...")
