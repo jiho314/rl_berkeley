@@ -47,6 +47,7 @@ class ValueCritic(nn.Module):
 
         # TODO: update the critic using the observations and q_values
         # fin
+        # Q.  Critic Loss function check... 그냥 Q <- V로 fitting 하는게 맞나...?
         self.optimizer.zero_grad()
         q_preds = self.forward(obs)        
         
@@ -54,6 +55,7 @@ class ValueCritic(nn.Module):
         loss.backward()
 
         self.optimizer.step()
+        self.optimizer.zero_grad()
 
         return {
             "Baseline Loss": ptu.to_numpy(loss),

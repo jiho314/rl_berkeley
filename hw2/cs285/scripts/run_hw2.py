@@ -76,10 +76,9 @@ def run_training_loop(args):
         # trajs should be a list of dictionaries of NumPy arrays, where each dictionary corresponds to a trajectory.
         # this line converts this into a single dictionary of lists of NumPy arrays. 
         trajs_dict = {k: [traj[k] for traj in trajs] for k in trajs[0]} # Q. 왜 [0] ? => A. 걍 아무 dict의 key만 가져오기 위함
-
+        # print(trajs_dict)
         # TODO: train the agent using the sampled trajectories and the agent's update function
-        # Q. 뭘 넣어주라는거야 이거
-        train_info: dict = None 
+        train_info: dict = agent.update(trajs_dict[, )
 
         # Q. Policy Gradient 학습 방식 뭘까 
         # 1. Actor(mlp)

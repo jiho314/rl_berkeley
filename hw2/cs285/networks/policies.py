@@ -73,10 +73,12 @@ class MLPPolicy(nn.Module):
         """
         if self.discrete:
             # TODO: define the forward pass for a policy with a discrete action space.
+            # fin?
             action = self.logits_net(obs)
             action = torch.exp(action)
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
+            # fin?
             mu = self.mean_net(observation)
             std = torch.exp(self.logstd)
             normal = distributions.Normal(mu, std)
@@ -104,12 +106,16 @@ class MLPPolicyPG(MLPPolicy):
         
         # TODO: implement the policy gradient actor update.
         # Q. 저렇게 loss에 곱해주기만 하면 되나?, GT actions는 어떤 형태인지 모르는 어캄(이게 logit인지 뭐시긴지어떻게알아)
+        # A. 일단 다른 코드에서 loss에 Reward 곱하긴함
+        # advantages detach는 input에서 되어서 들어옴(np니까)
         self.optimizer.zero_grad()
         actions_pred = self.forward(obs)
-        loss = torch.log(actions_pred) * advantages
+        loss = - torch.log(actions_pred) * advantages
         loss.backward()
 
         self.optimizer.step()
+        
+        self.optimizer.zero_grad()
         
 
         return {
