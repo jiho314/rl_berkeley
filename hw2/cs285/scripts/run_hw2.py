@@ -64,6 +64,10 @@ def run_training_loop(args):
 
     total_envsteps = 0
     start_time = time.time()
+    # trajs, envsteps_this_batch = utils.sample_trajectories(env, agent.actor, args.batch_size, max_ep_len )
+    # trajs_dict = {k: [traj[k] for traj in trajs] for k in trajs[0]}
+    # print(trajs_dict.keys())
+    # print(trajs_dict)
 
     for itr in range(args.n_iter):
         print(f"\n********** Iteration {itr} ************")
@@ -76,9 +80,8 @@ def run_training_loop(args):
         # trajs should be a list of dictionaries of NumPy arrays, where each dictionary corresponds to a trajectory.
         # this line converts this into a single dictionary of lists of NumPy arrays. 
         trajs_dict = {k: [traj[k] for traj in trajs] for k in trajs[0]} # Q. 왜 [0] ? => A. 걍 아무 dict의 key만 가져오기 위함
-        # print(trajs_dict)
         # TODO: train the agent using the sampled trajectories and the agent's update function
-        train_info: dict = agent.update(trajs_dict[, )
+        # train_info: dict = agent.update(trajs_dict[], )
 
         # Q. Policy Gradient 학습 방식 뭘까 
         # 1. Actor(mlp)
