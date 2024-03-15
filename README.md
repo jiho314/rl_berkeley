@@ -9,3 +9,6 @@ Caution
 install swig before installing requirements.txt (or else, box2d-py build error)
 
 - pip install swig
+
+cv2 import error
+- ->  pip3 install opencv-python-headless
