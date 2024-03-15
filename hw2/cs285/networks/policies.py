@@ -61,8 +61,15 @@ class MLPPolicy(nn.Module):
         # TODO: implement get_action
         # fin
         obs = ptu.from_numpy(obs)
-        action = self.forward(obs)
-        action = ptu.to_numpy(action)
+        
+        if self.discrete:
+            action = self.forward(obs)
+            action = ptu.to_numpy(action)
+            action = np.argmax(action)
+        else:
+            dist = self.forward(obs)
+            action = dist.rsample()
+        
         return action
 
     def forward(self, obs: torch.FloatTensor):
@@ -73,16 +80,17 @@ class MLPPolicy(nn.Module):
         """
         if self.discrete:
             # TODO: define the forward pass for a policy with a discrete action space.
-            # fin?
-            action = self.logits_net(obs)
-            action = torch.exp(action)
+            # fin? -> no! it should be.... 0 or 1...? or what? argmax??? hmmm Q. can it be non differentiable..?
+            logits = self.logits_net(obs)
+            action = F.softmax(logits)
+            # action = torch.exp(action)
         else:
             # TODO: define the forward pass for a policy with a continuous action space.
             # fin?
             mu = self.mean_net(observation)
             std = torch.exp(self.logstd)
-            normal = distributions.Normal(mu, std)
-            action = normal.rsample()
+            action = distributions.Normal(mu, std)
+            # action = normal.rsample()
         return action
 
     def update(self, obs: np.ndarray, actions: np.ndarray, *args, **kwargs) -> dict:
@@ -109,9 +117,16 @@ class MLPPolicyPG(MLPPolicy):
         # A. 일단 다른 코드에서 loss에 Reward 곱하긴함
         # advantages detach는 input에서 되어서 들어옴(np니까)
         self.optimizer.zero_grad()
-        actions_pred = self.forward(obs)
-        loss = - torch.log(actions_pred) * advantages
-        loss.backward()
+        if self.discrete:
+            logits = torch.log(self.forward(obs))
+            logits_ac = logits[ torch.arange(actions.shape[0]) , actions.long()]
+        else:
+            dist = self.forward(obs)
+            logits_ac = dist.log_prob(actions)
+        
+        loss = - logits_ac * advantages # actions_pred 
+        loss = loss.mean()
+        loss.backward() # mean!
 
         self.optimizer.step()
         

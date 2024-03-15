@@ -62,18 +62,18 @@ class PGAgent(nn.Module):
         """
 
         # step 1: calculate Q values of each (s_t, a_t) point, using rewards (r_0, ..., r_t, ..., r_T)
+        
         q_values: Sequence[np.ndarray] = self._calculate_q_vals(rewards)
-
+        # print(q_values[0])
         # TODO: flatten the lists of arrays into single arrays, so that the rest of the code can be written in a vectorized
         # way. obs, actions, rewards, terminals, and q_values should all be arrays with a leading dimension of `batch_size`
         # beyond this point.
         # fin
-        obs = np.concatenate(obs).ravel()
-        actions = np.concatenate(actions).ravel()
-        rewards = np.concatenate(rewards).ravel()
-        terminals = np.concatenate(terminals).ravel()
-        q_values = np.concatenate(q_values).ravel()
-        
+        obs = np.concatenate(obs)
+        actions = np.concatenate(actions)
+        rewards = np.concatenate(rewards)
+        terminals = np.concatenate(terminals)
+        q_values = np.concatenate(q_values)      
         
 
         # step 2: calculate advantages from Q values
@@ -118,9 +118,11 @@ class PGAgent(nn.Module):
             # fin
             q_values = []
             for reward in rewards:
+                # reward shape -> (n,)
                 q_values.append(np.array(self._discounted_reward_to_go(reward)))
-
+        
         return q_values
+
 
     def _estimate_advantage(
         self,
@@ -211,8 +213,7 @@ class PGAgent(nn.Module):
         """
         return_list = []
         R = 0
-        for reward in reversed(rewards) :
-            R = rewards + self.gamma * R   
+        for reward in reversed(rewards):
+            R = reward + self.gamma * R   
             return_list.insert(0, R)
-            
         return return_list

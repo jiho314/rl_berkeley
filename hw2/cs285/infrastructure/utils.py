@@ -32,7 +32,6 @@ def sample_trajectory(
         # TODO use the most recent ob and the policy to decide what to do
         # fin
         ac: np.ndarray = policy.get_action(ob) 
-
         # TODO: use that action to take a step in the environment
         # fin
         next_ob, rew, done, _ = env.step(ac)
